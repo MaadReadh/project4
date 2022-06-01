@@ -1,0 +1,49 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+{% if user.is_authenticated %}
+<div class="col-md-12 mt-3">
+    <div class="card bg-form">
+        <div class="card-header">
+New Post
+        </div>
+        <div class="card-body">
+        <form action="{% url 'index' %}" method="post">
+            {% csrf_token %}
+            {{ PostForm}}
+         <button class="btn btn-primary " type="submit">Post </button>
+        </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if post_list %}
+ 
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row ">
+            {%for item in post_list%}
+            <div><a href="{% url 'profile' item.user.id %}">{{item.user.username}}</a></div>       
+                 <p class="text-muted">{{item.content}}.</p>
+                 <p class="text-muted">{{item.date}}.</p>
+                  
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
