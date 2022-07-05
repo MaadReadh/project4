@@ -46,7 +46,7 @@ New Post
                 </div>
             </div>
          </article>
-    
+      {% endfor %}
 
 <div>
      <span>
@@ -59,9 +59,9 @@ New Post
         {% endif %}
     </span>
 </div>
-{% endfor %}
+
 {% endblock %} 
 
 {% block script %}
-<script src="{% static 'network/indox.js' %}"></script>
+<script src="{% static 'network/inbox.js' %}"></script>
 {% endblock %}
