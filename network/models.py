@@ -12,20 +12,15 @@ class Post(models.Model):
   updated_dat = models.DateTimeField(auto_now=True)
   likes = models.IntegerField(default=0)
 
-def __str__(self):
+  def __str__(self):
         return f'{self.user} wrote post at {self.date}'
 
-class Meta:
+  class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
 
 
-class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    id_user = models.IntegerField()
-
-def __str__(self):
-        return  f'{self.user} profile'
+ 
 
  
 class Follower (models.Model):
@@ -40,16 +35,7 @@ class Follower (models.Model):
         verbose_name_plural = 'Followers'
 
 
-class Comment (models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    comments = models.CharField(max_length=500)
-    posts = models.ForeignKey(Post,on_delete=models.CASCADE)
-    def __str__(self):
-        return f'{self.user} wrote {self.comments}'
-    class Meta:
-        verbose_name = 'Comment'
-        verbose_name_plural = 'Comments'
-
+ 
 
 class Like (models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='userLike')

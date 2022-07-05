@@ -1,0 +1,55 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+
+
+{% if post_list %}
+
+
+
+{% for item in post_list %}
+{% comment %} <div class="col-md-12 mt-3"> {% endcomment %}
+    <div class="card">
+                  {% comment %} <div class="card-header d-flex justify-content-between"> {% endcomment %}
+                     {% comment %} <div class="d-flex align-items-center"> {% endcomment %}
+
+ 
+       
+                        <div class="card-actions">
+                           <div class="card-body">
+                           <a   href="{% url 'profile' item.user.id %}">{{item.user.username}}</a> 
+                            <small class="text-muted">{{ item.date}}</small>
+                            <p class="article-content">{{ item.content }}</p>
+                      
+                     </div>
+
+         <div class="card-footer">
+ <div>
+    <a   class="btn btn-sm btn-outline-primary" id="{{item.id}}">
+<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <desc>Download more icon variants from https://tabler-icons.io/i/thumb-up</desc>
+   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+   <path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"></path>
+</svg>
+        <p class="testp" style="display:inline">like</p>
+                      </a>
+ <p style="display:inline;" id="{{item.id}}{{'likes'}}"> {{item.likes}}</p>
+ </div>
+                  </div>
+
+                </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<span>
+   {% if page_obj.has_previous %}
+   <a href="?page={{page_obj.previous_page_number}}">previous</a>
+   {% endif %}
+   <span>{{ page_obj.number }}</span>
+   {% if page_obj.has_next %}
+   <a href="?page={{page_obj.next_page_number}}">next</a>
+   {% endif %}
+</span>
+{% endblock %}
+

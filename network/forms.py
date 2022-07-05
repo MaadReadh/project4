@@ -1,24 +1,15 @@
 from django import forms
-from network.models import Post, Comment, Follower, User
+from network.models import Post, Follower, User
 
 
 class PostForm(forms.ModelForm):
-    
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows':'3', 'placeholder':'Enter'}),label='Enter your Post')
     class Meta:
         model = Post
         fields = [
             'content'
         ]
+    
+    
 
-
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = [
-            'comments',
-        ]
-        widgets = {
-            'comments' : forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'put a comment',
-        })}
+ 

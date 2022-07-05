@@ -3,12 +3,16 @@
 {% block body %}
 
  
-<div class="card-title mb-1">{{profile_user.username}}</div>
+<div class="card-title mb-1">
+    <h3>{{profile_user.username}}</h3>
+</div>
 <div class="text-muted">Following : {{no_following}}</div>
 <div class="text-muted">Followers : {{no_follower}}</div>
 <div class="card-btn" style="display: {{ disp_follow }}">
+   
     <form action="{% url 'follow' profile_user.id %}">
           <button class="btn btn-primary " type="submit">
+
   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 25 25" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
 <desc>Download more icon variants from https://tabler-icons.io/i/user-plus</desc>
 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -26,29 +30,17 @@
 
 {% if post_list %}
 {% for item in post_list%}
-    <div class="card-body"> 
-    <p class="text-muted">{{item.content}}</p>
-    <p class="text-muted">{{item.date}}</p>
-    </div>
+<div class="card-actions">
+    <div class="card-body">
+    
+     <small class="text-muted">{{ item.date}}</small>
+     <p class="article-content">{{ item.content }}</p>
+
+</div>
+
 {% endfor %}
+
 {% endif %}
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {% endblock %}
