@@ -1,4 +1,5 @@
 {% extends "network/layout.html" %}
+{% load crispy_forms_tags %} 
 {% load static %}
 {% block body %}
 {% if user.is_authenticated %}
@@ -11,54 +12,95 @@ New Post
         <div class="card-body">
         <form action="{% url 'index' %}" method="post">
             {% csrf_token %}
-            {{ PostForm}}
-         <button class="btn btn-primary " type="submit">Post </button>
+            {{PostForm | crispy}}
+         <button class="btn btn-primary " type="submit">Post</button>
         </form>
         </div>
     </div>
 </div>
 {% endif %}
 
-            {%for item in post_list%}
-               
-            <div class="card-actions">
-                <div class="card-body">
-                <a   href="{% url 'profile' item.user.id %}">{{item.user.username}}</a> 
-                 <small class="text-muted">{{ item.date}}</small>
-                 <p class="article-content">{{ item.content }}</p>
-           
-          </div>
 
+{%for item in post_list%}
 
-
-                 <div class="card-footer">
-                    <div>
-                       <a   class="btn btn-sm btn-outline-primary" id="{{item.id}}">
-                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <desc>Download more icon variants from https://tabler-icons.io/i/thumb-up</desc>
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"></path>
-                   </svg>
-                           <p class="testp" style="display:inline">like</p>
-                                         </a>
-                    <p style="display:inline;" id="{{item.id}}{{'likes'}}"> {{item.likes}}</p>
-                    </div>
-                </div>
-            </div>
-         </article>
-      {% endfor %}
-
-<div>
-     <span>
-        {% if page_obj.has_previous %}
-        <a href="?page={{page_obj.previous_page_number}}">previous</a>
-        {% endif %}
-        <span>{{ page_obj.number }}</span>
-        {% if page_obj.has_next %}
-        <a href="?page={{page_obj.next_page_number}}">next</a>
-        {% endif %}
-    </span>
+<div class="card-body"><a  href="{% url 'profile' item.user.id %}">{{item.user.username}}</a></div>  
+             
+{% comment %}  
+{% if item.user.username == request.user.username %}
+   <div class="card-actions">
+    <div class="card-body">
+    <button  class=""data-id="{{item.id}}">
+     Edit
+    </button>
 </div>
+    {% comment %} <form action="{% url 'Edit-post' item.id %}" method="post" style="display:{{disp_EditForm}}" id="{{item.id}}{{'form'}}">
+        <textarea class="form-control" id="{{item.id}}{{'textarea'}}" placeholder="Post">{{item.post_body}}</textarea>
+         <div class="form-group py-2">
+         <input type="submit" class="btn btn-primary" value="Save"/>
+         </div>
+  </form> {% endcomment %}
+    {% comment %} </div> {% endcomment %}
+    {% comment %} {% else %}
+    <div class="card-actions"></div>
+   {% endif %} {% endcomment %} 
+
+
+
+ 
+     <div class="card">
+         <div class="card-body">  
+        <div id="{{item.id}}{{'div'}}" >  
+        <small class="text-muted"  id="{{item.id}}{{'d'}}">{{ item.date}}</small>
+        <p class="article-content"  id="{{item.id}}{{'p'}}">{{item.content}}</p>  
+    </div>  
+  </div>
+</div>
+{% comment %} {% if user.is_authenticated %} {% endcomment %}
+<div class="post_footer">
+  {% if user.is_authenticated %}
+    <button class="post_like_button btn btn-light" onclick="like(this,{{post.id}})">
+      <i class="fa-heart fa-regular {% if user in post.likes.all %} fa-solid text-danger{% endif %}"></i>
+      <small class="likes_count">
+        {{post.likes_count}}
+      </small>
+    </button>
+  </div>
+ </div>     
+      
+      {% endif %}
+      {% endfor %}
+ 
+
+
+      <div class="col-md-12 mt-1">
+        {% if post_list.has_other_pages %}
+      <ul class="pagination justify-content-end">
+        {% if post_list.has_previous %}
+    
+          <li class="page-item"><a class="page-link" href="?page={{ post_list.previous_page_number }}">Previous</a></li>
+        {% else %}
+    
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+    
+        {% endif %}
+    
+        {% for i in post_list.paginator.page_range %}
+          {% if post_list.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+    
+        {% if post_list.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ post_list.next_page_number }}">Next</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+      </ul>
+    {% endif %}
+    </div>
+    
 
 {% endblock %} 
 

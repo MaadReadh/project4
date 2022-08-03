@@ -9,9 +9,13 @@ class Post(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
   content = models.TextField()
   date = models.DateTimeField(default=timezone.now)
-  updated_dat = models.DateTimeField(auto_now=True)
-  likes = models.IntegerField(default=0)
-
+#   updated_date = models.DateTimeField(auto_now=True)
+#   likes = models.IntegerField(default=0)
+  likes_count = models.IntegerField(default=0)
+  likes = models.ManyToManyField("User",related_name="likes",blank=True)
+  creation_date = models.DateTimeField(auto_now_add=True)
+ 
+ 
   def __str__(self):
         return f'{self.user} wrote post at {self.date}'
 
@@ -20,9 +24,6 @@ class Post(models.Model):
         verbose_name_plural = 'Posts'
 
 
- 
-
- 
 class Follower (models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE, related_name='user_profile')
     user_follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower')
@@ -37,12 +38,12 @@ class Follower (models.Model):
 
  
 
-class Like (models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='userLike')
-    posts = models.ForeignKey(Post,on_delete=models.CASCADE, related_name='likePost')
-    def __str__(self):
-        return f'{self.user} like {self.posts}'
+# class Like (models.Model):
+#     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='userLike')
+#     posts = models.ForeignKey(Post,on_delete=models.CASCADE, related_name='likePost')
+#     def __str__(self):
+#         return f'{self.user} like {self.posts}'
 
-    class Meta:
-        verbose_name = 'Like'
-        verbose_name_plural = 'Likes'
+#     class Meta:
+#         verbose_name = 'Like'
+#         verbose_name_plural = 'Likes'

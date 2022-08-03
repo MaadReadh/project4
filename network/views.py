@@ -1,47 +1,48 @@
+import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.core.paginator import Paginator 
+from django.http import  HttpResponseRedirect, JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render 
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.urls import reverse
 from .forms import PostForm
-from .models import User, Post, Like, Follower
+from .models import User, Post, Follower
 
 
 def index(request):
     myPostForm=  PostForm()
     post_list=Post.objects.all().order_by('-date')
-    paginator = Paginator( post_list, 10)  
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)    
+    # paginator = Paginator( post_list, 10)  
+    # page_number = request.GET.get('page')
+    # page_obj = paginator.get_page(page_number)    
     if request.method =='POST':
           myPostForm=PostForm(request.POST)
           if myPostForm.is_valid():
              obj = myPostForm.save(commit=False)
              obj.user = request.user
              obj.save()
-    
-    return render(request, "network/index.html",{'PostForm':myPostForm, 'post_list':page_obj,})
+    post_list_paginator=retPaginatorList(request,post_list)
+    return render(request, "network/index.html",{'PostForm':myPostForm, 'post_list':post_list_paginator,})
 
 
 def Find_no_of_follower(profile_user):
     follow=Follower.objects.all().filter(user=profile_user)
     fList=[]
-    no_follower=0
+    no_follower = 0
     for item in follow:
          fList.append((item.user_follower))
 
     for us in fList:
         if Follower.objects.all().filter(user=us,user_follower=profile_user):
-            no_follower+= 1
+            no_follower += 1
 
     return no_follower
 
 
-
+@login_required
 def follow(request,pro_id):
 
         prof_user=User.objects.all().get(id=pro_id)
@@ -107,14 +108,14 @@ def register(request):
         return render(request, "network/register.html")
 
 
-
+@login_required
 def profile(request,id):
     fol_unfol='follow' 
-    no_follower=0 
+    no_follower = 0 
     profile_user=User.objects.all().get(id=id)
     post_list=Post.objects.all().filter(user=profile_user)
     countFollowing = Follower.objects.filter(user=profile_user).count()
-    no_follower=Find_no_of_follower(profile_user)
+    no_follower = Find_no_of_follower(profile_user)
     
     if profile_user== request.user:
         disp='none'
@@ -125,13 +126,13 @@ def profile(request,id):
             fol_unfol = 'unfollow'
         else:
             fol_unfol = 'follow'
-
-    return render(request,'network/profile.html', {'profile_user':profile_user, 'post_list':post_list, 'no_following':countFollowing, 'no_follower':no_follower,'disp_follow':disp,
+    post_list_paginator=retPaginatorList(request,post_list)
+    return render(request,'network/profile.html', {'profile_user':profile_user, 'post_list':post_list_paginator, 'no_following':countFollowing, 'no_follower':no_follower,'disp_follow':disp,
          'fol_unfol':fol_unfol,})
 
 
    
- 
+@login_required 
 def following_posts(request):
     f_posts=Post.objects.all().filter(user=None)
     following_list=Follower.objects.all().filter(user=request.user)
@@ -139,9 +140,64 @@ def following_posts(request):
     for item in following_list:
         f_posts=Post.objects.all().filter(user=item.user_follower)
         f_posts=f_posts.order_by('-date')
-        paginator = Paginator( f_posts, 10)  
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number) 
+        post_list_paginator=retPaginatorList(request,f_posts)
 
-    return render (request,'network/following_posts.html',  {'post_list':page_obj,})
+    return render (request,'network/following_posts.html', {'post_list':post_list_paginator,})
 
+@csrf_exempt
+@login_required
+def like(request):
+    data = json.loads(request.body)
+    post = Post.objects.get(id = data.get('id'))
+    liked = False
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        post.likes_count -= 1
+    else:
+        post.likes.add(request.user)
+        post.likes_count += 1
+        liked = True
+    post.save()
+
+    return JsonResponse({
+            "likes_count": post.likes_count,
+            "liked": liked,
+    })
+
+
+
+@csrf_exempt
+@login_required
+def edit_post(request, id):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    else:
+
+     data = json.loads(request.body)
+     body = data.get("body", "")
+     print('post body is', body)
+    try:
+        post = Post.objects.all().get(id=id, user=request.user)
+        post.content = body
+        post.date = datetime.now()
+        post.save()
+        return JsonResponse({"message": "Email sent successfully."}, status=201)
+    except Post.DoesNotExist:
+        return JsonResponse({
+            "error": f"post with id {id} does not exist."
+        }, status=400)
+
+
+
+def retPaginatorList(request, queryList):
+    page = request.GET.get('page')
+    mypge = Paginator(queryList, 10)
+    try:
+        resultList = mypge.page(page)
+    except PageNotAnInteger:
+        resultList = mypge.page(1)
+    except EmptyPage:
+        resultList = mypge.page(mypge.num_pages)
+
+    return  resultList
